@@ -6,13 +6,15 @@
 > Rustfmt suggestions in your Pull Requests
 
 This GitHub Action executes [`rustfmt`](https://github.com/rust-lang/rustfmt)
-and posts all suggestions as annotations for the pushed commit.
+and posts all suggestions as annotations for the pushed commit [<sup>2</sup>](#note-annotations-limit).
 
 ![Screenshot of a rustfmt suggestion displayed in the commit interface of GitHub](./.github/screenshot_fmt.png)
 
+This GitHub Action is based on [clechasseur/rs-clippy-check](https://github.com/clechasseur/rs-clippy-check), which itself has been forked from [actions-rs/clippy-check](https://github.com/actions-rs/clippy-check). See [LICENSE](LICENSE) for copyright attribution details.
+
 ## Example workflow
 
-Note: this workflow uses [`dtolnay/rust-toolchain`](https://github.com/dtolnay/rust-toolchain) to install the most recent `nightly` rustfmt [<sup>1</sup>](#note-nightly-requirement).
+Note: this workflow uses [`actions-rust-lang/setup-rust-toolchain`](https://github.com/actions-rust-lang/setup-rust-toolchain) to install the most recent `nightly` rustfmt [<sup>1</sup>](#note-nightly-requirement).
 
 ```yaml
 name: Rustfmt check
@@ -23,11 +25,12 @@ jobs:
   rustfmt_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions-rust-lang/setup-rust-toolchain@9399c7bb15d4c7d47b27263d024f0a4978346ba4 # v1.11.0
         with:
+          toolchain: nightly
           components: rustfmt
-      - uses: clechasseur/rs-fmt-check@v1
+      - uses: clechasseur/rs-fmt-check@e1bd0f5c24ced02542ed905bde212ffc9c324863 # v2.0.8
 ```
 
 ## Inputs
@@ -45,3 +48,5 @@ For extra details about the `toolchain` and `args` inputs, see [`rs-cargo` Actio
 ## Notes
 
 <a name="note-nightly-requirement"><sup>1</sup></a> : This action currently relies on an unstable `rustfmt` feature (`emit json`) and as such, requires a `nightly` toolchain at the minimum. You should not change the value of the `toolchain` parameter unless you know the specified toolchain supports the feature correctly.
+
+<a name="note-annotations-limit"><sup>2</sup></a> : Currently, GitHub sets a limit of 10 warning annotations per run (see [this page](https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28) for more information). So if there are more than 10 suggestions returned by `rustfmt`, only the first 10 will appear as PR annotations. The other suggestions will still appear in the check run summary (see [this one](https://github.com/clechasseur/rs-fmt-check/actions/runs/5886828621/attempts/1#summary-15965282231) for example).
